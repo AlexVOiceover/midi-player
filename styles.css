@@ -1,0 +1,29 @@
+body {
+	padding: 2rem;
+	background-image: url(./images/background2.webp);
+	background-size: contain;
+	max-width: 60rem;
+	min-width: 30rem;
+	margin: 0 auto; /* Centers the body content horizontally */
+}
+
+.flex {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.dropDown {
+	width: min-content;
+}
+
+h2 {
+	color: aliceblue;
+}
+
+.assistant {
+	background-color: black !important;
+	color: limegreen !important; /* Lime green color, reminiscent of the Matrix movie style */
+	font-family: 'Courier New', monospace; /* Optional: Gives it more of a Matrix-like feel */
+}

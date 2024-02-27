@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>MIDI Player</title>
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+		/>
+		<link rel="stylesheet" href="./styles.css" />
+	</head>
+	<body>
+		<div class="row">
+			<h2 class="display-4">Ask the Assistant</h2>
+			<textarea
+				id="questionInput"
+				class="form-control mb-3"
+				rows="4"
+				placeholder="Type your request here..."
+			></textarea>
+			<div class="flex">
+				<button
+					id="askButton"
+					type="button"
+					class="btn btn-primary"
+					onclick="askAssistant()"
+				>
+					Ask
+				</button>
+				<button
+					id="resetButton"
+					type="button"
+					class="btn btn-primary"
+					onclick="resetAssistant()"
+				>
+					Reset
+				</button>
+			</div>
+		</div>
+
+		<div class="row">
+			<textarea
+				id="assistantResponse"
+				class="form-control mt-3 assistant"
+				rows="6"
+				readonly
+			></textarea>
+		</div>
+
+		<div class="row">
+			<h2 class="display-4">MIDI Sequence</h2>
+			<textarea
+				id="midiInput"
+				class="assistant form-control mb-3"
+				rows="20"
+			></textarea>
+			<div class="flex">
+				<button type="button" class="btn btn-primary mb-3" onclick="playMidi()">
+					Play MIDI
+				</button>
+				<select id="midiOutputs" class="form-control mb-3 dropDown"></select>
+			</div>
+		</div>
+
+		<script src="./public/midiPlayer.js"></script>
+	</body>
+</html>
