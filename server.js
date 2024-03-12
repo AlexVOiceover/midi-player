@@ -16,9 +16,16 @@ let existingThreadId = null // Variable to store the existing thread ID
 app.post('/ask', async (req, res) => {
 	try {
 		const messageContent = req.body.message
+		const modelVersion = req.body.modelVersion; // Accept modelVersion from client
+
+
 		if (!messageContent) {
 			return res.status(400).json({ error: 'Message content is required.' })
 		}
+
+		 // Choose the assistant ID based on the model version
+		 const assistantId = modelVersion === 'gpt-3.5' ? process.env.ASSISTANT_ID35 : process.env.ASSISTANT_ID;
+
 
 		console.log('User asked: ', messageContent)
 
@@ -39,7 +46,7 @@ app.post('/ask', async (req, res) => {
 
 		// Create a run with the assistant and the thread
 		const run = await openai.beta.threads.runs.create(existingThreadId, {
-			assistant_id: process.env.ASSISTANT_ID,
+			assistant_id: assistantId,
 		})
 
 		// Function to check the status of the run

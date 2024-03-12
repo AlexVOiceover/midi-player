@@ -19,7 +19,7 @@
 				rows="4"
 				placeholder="Type your request here..."
 			></textarea>
-			<div class="flex">
+			<div class="flex align-items-center justify-content-between">
 				<button
 					id="askButton"
 					type="button"
@@ -28,6 +28,13 @@
 				>
 					Ask
 				</button>
+				<div class="flex right">
+					<select id="modelSelect" class="form-control mr-2 dropDown">
+						<option value="gpt-4">GPT-4</option>
+						<option value="gpt-3.5">GPT-3.5</option>
+					</select>
+				</div>
+
 				<button
 					id="resetButton"
 					type="button"
@@ -43,7 +50,7 @@
 			<textarea
 				id="assistantResponse"
 				class="form-control mt-3 assistant"
-				rows="6"
+				rows="4"
 				readonly
 			></textarea>
 		</div>
@@ -53,7 +60,7 @@
 			<textarea
 				id="midiInput"
 				class="assistant form-control mb-3"
-				rows="20"
+				rows="10"
 			></textarea>
 			<div class="flex">
 				<button type="button" class="btn btn-primary mb-3" onclick="playMidi()">

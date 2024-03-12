@@ -7,6 +7,8 @@ if (navigator.requestMIDIAccess) {
 
 let midiOutput = null
 
+const chatOutput = document.getElementById('assistantResponse')
+
 // Function to initialize MIDI outputs dropdown and listeners
 function initializeMIDI() {
 	navigator.requestMIDIAccess({ sysex: false }).then(
@@ -47,6 +49,8 @@ let timeouts = []
 // Variable to track playback state
 let isPlaying = false
 
+let activeNotes = {} // Object to keep track of active notes
+
 function playMidi() {
 	console.log('playMidi function called')
 	const midiInput = document.getElementById('midiInput')
@@ -75,26 +79,37 @@ function playMidi() {
 		const velocityNumber = parseInt(velocity, 10)
 
 		// Store each timeout reference
+		// Schedule the MIDI message
 		const timeout = setTimeout(() => {
-			//console.log(`Playing note: ${noteNumber}`) // Log inside setTimeout to match the scheduled time
-			const midiMessage =
-				messageType === 'NoteOn'
-					? [0x90, noteNumber, velocityNumber]
-					: [0x80, noteNumber, 0] // MIDI message
+			// Check if the note is already active
+			if (activeNotes[noteNumber] && messageType === 'NoteOn') {
+				// If the note is active and we have another NoteOn, send NoteOff first
+				const noteOffMessage = [0x80, noteNumber, 0]
+				midiOutput && midiOutput.send(noteOffMessage)
+				// Small delay before playing the note again
+				setTimeout(() => {
+					midiOutput && midiOutput.send([0x90, noteNumber, velocityNumber])
+				}, 10) // Delay of 10ms
+			} else {
+				// Otherwise, just send the MIDI message as usual
+				const midiMessage =
+					messageType === 'NoteOn'
+						? [0x90, noteNumber, velocityNumber]
+						: [0x80, noteNumber, 0] // MIDI message
+				midiOutput && midiOutput.send(midiMessage)
 
-			midiOutput && midiOutput.send(midiMessage)
-
-			// Highlight the current line being played
-			highlightLine(index)
-
-			// Remove timeout from array when executed
-			timeouts = timeouts.filter((t) => t !== timeout)
-
-			// Check if all notes have been played and reset isPlaying
-			if (timeouts.length === 0) {
-				isPlaying = false
-				console.log('Playback finished')
+				// Highlight the current line being played
+				highlightLine(index)
 			}
+
+			// Update the activeNotes registry
+			if (messageType === 'NoteOn') {
+				activeNotes[noteNumber] = true
+			} else if (messageType === 'NoteOff') {
+				delete activeNotes[noteNumber]
+			}
+
+			// ... (rest of your timeout function)
 		}, scheduleTime - Date.now())
 
 		// Add the timeout reference to the array
@@ -124,9 +139,10 @@ function highlightLine(lineIndex) {
 }
 
 function askAssistant() {
+	const modelVersion = document.getElementById('modelSelect').value
 	const questionInput = document.getElementById('questionInput')
 	const question = questionInput.value
-	const chatOutput = document.getElementById('assistantResponse')
+
 	const askButton = document.getElementById('askButton')
 
 	let improvedQuestion =
@@ -135,7 +151,7 @@ function askAssistant() {
 
 	//const improvedQuestion = question
 
-	let calculatingText = `Analysing: ${question}\n`
+	let calculatingText = `Analysing under ${modelVersion}: ${question}\n`
 	chatOutput.innerHTML = calculatingText
 
 	askButton.classList.remove('btn-primary')
@@ -157,12 +173,15 @@ function askAssistant() {
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ message: improvedQuestion }),
+			body: JSON.stringify({
+				message: improvedQuestion,
+				modelVersion: modelVersion,
+			}),
 		})
 			.then((response) => response.json())
 			.then((data) => {
 				clearInterval(dotsInterval)
-				console.log('Asking :', improvedQuestion)
+				console.log('Asking ', modelVersion, ' : ', improvedQuestion)
 				console.log('DATA ANSWER ', data.answer)
 
 				// Check if the answer contains a MIDI sequence
@@ -210,6 +229,7 @@ function askAssistant() {
 }
 
 function resetAssistant() {
+	chatOutput.innerHTML = 'Reset thread'
 	fetch('http://localhost:3000/reset', {
 		method: 'POST', // Specify the method
 		headers: {
